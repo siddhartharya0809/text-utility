@@ -1,0 +1,82 @@
+Please ignore this file as it contains some bugs. I am taking this file with this project because i wrote this code
+myself and if i get any problems in future , i a\can refer to this file and solve my problems.
+
+------------------------------------------------------------------------------------------------------------------------
+# I created this new site
+from django.http import HttpResponse
+from django.shortcuts import render
+
+def index(request):
+    return render(request, 'index.html')
+
+def removepunc(request):
+    # Get the text from the user
+    djtext = request.POST.get('text', 'default')
+
+    # check checkbox value
+    removepunc = request.POST.get('removepunc', 'Off')
+    FullCaps = request.POST.get('FullCaps', 'Off')
+    newlineremover = request.POST.get('newlineremover', 'Off')
+    extraspaceremover = request.POST.get('extraspaceremover', 'Off')
+
+    # check which checkbox is on
+    if removepunc == "on":
+        punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_~'''
+        analyzed = ""
+
+        for char in djtext:
+            if char not in punctuations:
+                analyzed += char
+
+        parameter = {'purpose': 'Remove Punctuation', 'analyzed_text': analyzed}
+        # Analyze the text
+        return render(request, 'analyze.html', parameter)
+
+    if FullCaps == 'on':
+        analyzed = ""
+        for char in djtext:
+            analyzed += char.upper()
+
+        parameter = {'purpose': 'Change to Upper Caps', 'analyzed_text': analyzed}
+        # Analyze the text
+        return render(request, 'analyze.html', parameter)
+
+    if newlineremover == 'on':
+        analyzed = ""
+        for char in djtext:
+            if char != '/n' and char != "/r":
+                    analyzed += char
+
+        parameter = {'purpose': 'Remove New Lines', 'analyzed_text': analyzed}
+        # Analyze the text
+        return render(request, 'analyze.html', parameter)
+
+    if extraspaceremover == 'on':
+        analyzed = ""
+        for index,char in enumerate(djtext):
+            if not(djtext[index] == " " and djtext[index+1] == " "):
+                analyzed += char
+
+        parameter = {'purpose': 'Remove New Lines', 'analyzed_text': analyzed}
+        # Analyze the text
+        return render(request, 'analyze.html', parameter)
+
+    else:
+        return HttpResponse("Error")
+
+# def capfirst(request):
+#     return HttpResponse("Capitalize First"
+#                         "<a href = '/'> Back </a>")
+#
+# def newlineremove(request):
+#     return HttpResponse("Remove the new Line"
+#                         "<a href = '/'> Back </a>")
+#
+# def spaceremover(request):
+#     return HttpResponse("Remove the space"
+#                         "<a href = '/'> Back </a>")
+#
+# def charcount(request):
+#     return HttpResponse("Count the Characters"
+#                         "<a href = '/'> Back </a>")
+#
