@@ -27,5 +27,37 @@
 </p>
 
 <a href="{% url 'index' %}" class="btn btn-dark">Analyze Another Text</a>
+<button class="btn btn-success" id="copy-btn">Copy to Clipboard</button>
+
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const copyButton = document.getElementById('copy-btn');
+        // Find the <pre> tag by its new ID
+        const textElement = document.getElementById('analyzed-text-pre');
+        
+        copyButton.addEventListener('click', () => {
+            // Get the plain text content from the <pre> tag
+            const textToCopy = textElement.textContent;
+            
+            // Use the modern navigator.clipboard API
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                // Success! Give user feedback
+                copyButton.textContent = 'Copied!';
+                copyButton.classList.remove('btn-success');
+                copyButton.classList.add('btn-secondary');
+                
+                // Reset the button text after 2 seconds
+                setTimeout(() => {
+                    copyButton.textContent = 'Copy to Clipboard';
+                    copyButton.classList.remove('btn-secondary');
+                    copyButton.classList.add('btn-success');
+                }, 2000);
+                
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        });
+    });
+</script>
 
 {% endblock %}

@@ -93,7 +93,26 @@
     </div>
 
     <button type="Submit" class="btn btn-dark mt-3">Analyze Text</button>
+    <button type="Submit" class="btn btn-secondary mt-3" id="clear-btn">
+      Clear Text
+    </button>
   </form>
 </div>
+<script>
+  // Wait forthe doc to be fully loaded
+  document.addEventListener("DOMContentLoaded", (event) => {
+    // Get the clear button and text area elements
+    const clearButton = document.getElementById("clear-btn");
+    const textArea = document.getElementById("text-area");
+
+    // Add click event listener to the clear button
+    clearBtn.addEventListener("click", () => {
+      // Prevent the form from submitting
+      event.preventDefault();
+      // Clear the text area
+      textArea.value = "";
+    });
+  });
+</script>
 
 {% endblock %}
