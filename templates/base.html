@@ -35,7 +35,14 @@
                 class="nav-link {% if request.path == '/' %}active{% endif %}"
                 aria-current="page"
                 href="{% url 'index' %}"
-                >Home</a
+                >Text Utility</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link {% if request.path == '/file-utility/' %}active{% endif %}"
+                href="{% url 'file_utility' %}"
+                >File Utility</a
               >
             </li>
             <li class="nav-item">
