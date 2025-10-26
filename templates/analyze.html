@@ -5,11 +5,23 @@
 {% block content %}
 
 <div class="alert alert-success alert-dismissible fade show" role="alert">
-    <strong>Success!</strong> Your text has been analyzed.
+    <strong>Success!</strong> Your text has been processed.
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 
-<h1>Your Analyzed Text - {{ purpose }}</h1>
+{% if analysis %}
+<div class="alert alert-info">
+    <h4 class="alert-heading">Text Analysis</h4>
+    <hr>
+    {% if analysis.word_count is not None %}
+        <p class="mb-1"><strong>Word Count:</strong> {{ analysis.word_count }}</p>
+    {% endif %}
+    {% if analysis.char_count is not None %}
+        <p class="mb-0"><strong>Character Count:</strong> {{ analysis.char_count }}</p>
+    {% endif %}
+</div>
+{% endif %}
+<h1>Your Processed Text - {{ purpose }}</h1>
 <p>
     <pre class="alert alert-light" style="font-family: monospace; font-size: 1.1rem;">{{ analyzed_text }}</pre>
 </p>

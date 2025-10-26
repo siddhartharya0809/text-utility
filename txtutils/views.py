@@ -1,5 +1,4 @@
 # I have created this file - Siddharth
-
 from django.http import HttpResponse
 from django.shortcuts import render
 
@@ -12,50 +11,81 @@ def removepunc(request):
     # Get the text
     djtext = request.POST.get('text', 'default')
 
-    # Check checkbox values
-    removepunc = request.POST.get('removepunc', 'off')
-    FullCaps = request.POST.get('FullCaps', 'off')
-    newlineremover = request.POST.get('newlineremover', 'off')
-    extraspaceremover = request.POST.get('extraspaceremover', 'off')
+    # Check checkbox values for modification
+    removepunc_checked = request.POST.get('removepunc', 'off')
+    fullcaps_checked = request.POST.get('FullCaps', 'off')
+    newlineremover_checked = request.POST.get('newlineremover', 'off')
+    extraspaceremover_checked = request.POST.get('extraspaceremover', 'off')
+    
+    # NEW: Check checkbox values for analysis
+    wordcount_checked = request.POST.get('wordcount', 'off')
+    charcount_checked = request.POST.get('charcount', 'off')
 
-    # Check which checkbox is on
-    if removepunc == "on":
+    # Initialize variables
+    analyzed_text = djtext
+    purposes = [] # A list to hold the purposes of all modifications
+    analysis_results = {} # NEW: A dictionary to hold analysis results
+
+    # --- Text Modification Pipeline ---
+    if removepunc_checked == "on":
         punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_~'''
-        analyzed = ""
-        for char in djtext:
+        temp_text = ""
+        for char in analyzed_text:
             if char not in punctuations:
-                analyzed = analyzed + char
+                temp_text = temp_text + char
+        
+        analyzed_text = temp_text
+        purposes.append('Removed Punctuations')
 
-        parameters = {'purpose': 'Removed Punctuations', 'analyzed_text': analyzed}
-        djtext = analyzed
+    if fullcaps_checked == "on":
+        analyzed_text = analyzed_text.upper()
+        purposes.append('Changed to Uppercase')
 
-    if FullCaps == "on":
-        analyzed = ""
-        for char in djtext:
-            analyzed = analyzed + char.upper()
+    if extraspaceremover_checked == "on":
+        temp_text = analyzed_text
+        while "  " in temp_text:
+            temp_text = temp_text.replace("  ", " ")
+        
+        analyzed_text = temp_text.strip() # Also remove leading/trailing spaces
+        purposes.append('Removed Extra Spaces')
 
-        parameters = {'purpose': 'Changed to Uppercase', 'analyzed_text': analyzed}
-        djtext = analyzed
-
-    if extraspaceremover == "on":
-        analyzed = ""
-        for index, char in enumerate(djtext):
-            if not (djtext[index] == " " and djtext[index + 1] == " "):
-                analyzed = analyzed + char
-
-        parameters = {'purpose': 'Removed NewLines', 'analyzed_text': analyzed}
-        djtext = analyzed
-
-    if newlineremover == "on":
-        analyzed = ""
-        for char in djtext:
+    if newlineremover_checked == "on":
+        temp_text = ""
+        for char in analyzed_text:
             if char != "\n" and char != "\r":
-                analyzed = analyzed + char
+                temp_text = temp_text + char
+        
+        analyzed_text = temp_text
+        purposes.append('Removed NewLines')
+        
+    # --- Text Analysis Pipeline (NEW) ---
+    # These run after all modifications are complete
+    
+    if wordcount_checked == "on":
+        # Split text by spaces and newlines, filter out empty strings
+        words = [word for word in analyzed_text.split() if word.strip()]
+        analysis_results['word_count'] = len(words)
 
-        parameters = {'purpose': 'Removed NewLines', 'analyzed_text': analyzed}
+    if charcount_checked == "on":
+        analysis_results['char_count'] = len(analyzed_text)
 
-    if removepunc != "on" and newlineremover != "on" and extraspaceremover != "on" and FullCaps != "on":
-        return HttpResponse("please select any operation and try again")
+
+    # Check if *any* operation or analysis was selected
+    if not purposes and not analysis_results:
+        return HttpResponse("Please select at least one operation or analysis and try again")
+
+    # Format the final purpose string
+    if purposes:
+        final_purpose = ' and '.join(purposes)
+    else:
+        final_purpose = 'Text Analyzed' # Default if only analysis was done
+
+    # Prepare final parameters for the template
+    parameters = {
+        'purpose': final_purpose, 
+        'analyzed_text': analyzed_text,
+        'analysis': analysis_results  # NEW: Pass analysis dict to template
+    }
 
     return render(request, 'analyze.html', parameters)
 
