@@ -1,82 +1,69 @@
-Please ignore this file as it contains some bugs. I am taking this file with this project because i wrote this code
-myself and if i get any problems in future , i a\can refer to this file and solve my problems.
-
-------------------------------------------------------------------------------------------------------------------------
-# I created this new site
+# I have created this file - Siddharth
 from django.http import HttpResponse
 from django.shortcuts import render
+
 
 def index(request):
     return render(request, 'index.html')
 
+
 def removepunc(request):
-    # Get the text from the user
+    # Get the text
     djtext = request.POST.get('text', 'default')
 
-    # check checkbox value
-    removepunc = request.POST.get('removepunc', 'Off')
-    FullCaps = request.POST.get('FullCaps', 'Off')
-    newlineremover = request.POST.get('newlineremover', 'Off')
-    extraspaceremover = request.POST.get('extraspaceremover', 'Off')
+    # Check checkbox values
+    removepunc_checked = request.POST.get('removepunc', 'off')
+    fullcaps_checked = request.POST.get('FullCaps', 'off')
+    newlineremover_checked = request.POST.get('newlineremover', 'off')
+    extraspaceremover_checked = request.POST.get('extraspaceremover', 'off')
 
-    # check which checkbox is on
-    if removepunc == "on":
+    # Initialize variables to hold the modified text and a list of operations
+    analyzed_text = djtext
+    purposes = [] # A list to hold the purposes of all operations
+
+    # Check which checkbox is on
+    if removepunc_checked == "on":
         punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_~'''
-        analyzed = ""
-
-        for char in djtext:
+        temp_text = ""
+        for char in analyzed_text:
             if char not in punctuations:
-                analyzed += char
+                temp_text = temp_text + char
+        
+        analyzed_text = temp_text
+        purposes.append('Removed Punctuations') # Add to list
 
-        parameter = {'purpose': 'Remove Punctuation', 'analyzed_text': analyzed}
-        # Analyze the text
-        return render(request, 'analyze.html', parameter)
+    if fullcaps_checked == "on":
+        analyzed_text = analyzed_text.upper()
+        purposes.append('Changed to Uppercase') # Add to list
 
-    if FullCaps == 'on':
-        analyzed = ""
-        for char in djtext:
-            analyzed += char.upper()
+    if extraspaceremover_checked == "on":
+        temp_text = analyzed_text
+        # Keep replacing double spaces with single spaces until none are left
+        while "  " in temp_text:
+            temp_text = temp_text.replace("  ", " ")
+        
+        analyzed_text = temp_text
+        purposes.append('Removed Extra Spaces') # Add to list (Corrected)
 
-        parameter = {'purpose': 'Change to Upper Caps', 'analyzed_text': analyzed}
-        # Analyze the text
-        return render(request, 'analyze.html', parameter)
+    if newlineremover_checked == "on":
+        temp_text = ""
+        for char in analyzed_text:
+            if char != "\n" and char != "\r":
+                temp_text = temp_text + char
+        
+        analyzed_text = temp_text
+        purposes.append('Removed NewLines') # Add to list
 
-    if newlineremover == 'on':
-        analyzed = ""
-        for char in djtext:
-            if char != '/n' and char != "/r":
-                    analyzed += char
+    # Check if *any* operation was selected
+    if not purposes: # If the list is empty
+        return HttpResponse("please select any operation and try again")
 
-        parameter = {'purpose': 'Remove New Lines', 'analyzed_text': analyzed}
-        # Analyze the text
-        return render(request, 'analyze.html', parameter)
+    # Format the final purpose string by joining all operations
+    final_purpose = ' and '.join(purposes)
+    parameters = {'purpose': final_purpose, 'analyzed_text': analyzed_text}
 
-    if extraspaceremover == 'on':
-        analyzed = ""
-        for index,char in enumerate(djtext):
-            if not(djtext[index] == " " and djtext[index+1] == " "):
-                analyzed += char
+    return render(request, 'analyze.html', parameters)
 
-        parameter = {'purpose': 'Remove New Lines', 'analyzed_text': analyzed}
-        # Analyze the text
-        return render(request, 'analyze.html', parameter)
 
-    else:
-        return HttpResponse("Error")
-
-# def capfirst(request):
-#     return HttpResponse("Capitalize First"
-#                         "<a href = '/'> Back </a>")
-#
-# def newlineremove(request):
-#     return HttpResponse("Remove the new Line"
-#                         "<a href = '/'> Back </a>")
-#
-# def spaceremover(request):
-#     return HttpResponse("Remove the space"
-#                         "<a href = '/'> Back </a>")
-#
-# def charcount(request):
-#     return HttpResponse("Count the Characters"
-#                         "<a href = '/'> Back </a>")
-#
+def about(request):
+    return render(request, 'about.html')
