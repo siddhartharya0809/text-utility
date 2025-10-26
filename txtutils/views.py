@@ -16,15 +16,16 @@ def removepunc(request):
     fullcaps_checked = request.POST.get('FullCaps', 'off')
     newlineremover_checked = request.POST.get('newlineremover', 'off')
     extraspaceremover_checked = request.POST.get('extraspaceremover', 'off')
+    titlecase_checked = request.POST.get('titlecase', 'off') # NEW
     
-    # NEW: Check checkbox values for analysis
+    # Check checkbox values for analysis
     wordcount_checked = request.POST.get('wordcount', 'off')
     charcount_checked = request.POST.get('charcount', 'off')
 
     # Initialize variables
     analyzed_text = djtext
     purposes = [] # A list to hold the purposes of all modifications
-    analysis_results = {} # NEW: A dictionary to hold analysis results
+    analysis_results = {} # A dictionary to hold analysis results
 
     # --- Text Modification Pipeline ---
     if removepunc_checked == "on":
@@ -37,7 +38,15 @@ def removepunc(request):
         analyzed_text = temp_text
         purposes.append('Removed Punctuations')
 
+    # NEW: Title Case logic
+    if titlecase_checked == "on":
+        analyzed_text = analyzed_text.title()
+        purposes.append('Changed to Title Case')
+
     if fullcaps_checked == "on":
+        # Check if title case was also on. If so, this overrides it.
+        if 'Changed to Title Case' in purposes:
+            purposes.remove('Changed to Title Case') # Remove previous purpose
         analyzed_text = analyzed_text.upper()
         purposes.append('Changed to Uppercase')
 
@@ -58,11 +67,8 @@ def removepunc(request):
         analyzed_text = temp_text
         purposes.append('Removed NewLines')
         
-    # --- Text Analysis Pipeline (NEW) ---
-    # These run after all modifications are complete
-    
+    # --- Text Analysis Pipeline ---
     if wordcount_checked == "on":
-        # Split text by spaces and newlines, filter out empty strings
         words = [word for word in analyzed_text.split() if word.strip()]
         analysis_results['word_count'] = len(words)
 
@@ -84,7 +90,7 @@ def removepunc(request):
     parameters = {
         'purpose': final_purpose, 
         'analyzed_text': analyzed_text,
-        'analysis': analysis_results  # NEW: Pass analysis dict to template
+        'analysis': analysis_results
     }
 
     return render(request, 'analyze.html', parameters)

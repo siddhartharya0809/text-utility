@@ -1,6 +1,5 @@
-{% extends 'base.html' %} {% block title %}Home - TextUtils{% endblock %}
-<!--  -->
-{% block content %}
+{% extends 'base.html' %} {% block title %}Home - TextUtils{% endblock %} {%
+block content %}
 
 <div class="alert alert-success alert-dismissible fade show" role="alert">
   <strong>Welcome to TextUtils!</strong> You can analyze and modify your text
@@ -53,6 +52,18 @@
       <input
         class="form-check-input"
         type="checkbox"
+        name="titlecase"
+        role="switch"
+        id="switch7"
+      />
+      <label class="form-check-label" for="switch7"
+        >Convert to Title Case</label
+      >
+    </div>
+    <div class="form-check form-switch">
+      <input
+        class="form-check-input"
+        type="checkbox"
         name="newlineremover"
         role="switch"
         id="switch3"
@@ -93,23 +104,18 @@
     </div>
 
     <button type="Submit" class="btn btn-dark mt-3">Analyze Text</button>
-    <button type="Submit" class="btn btn-secondary mt-3" id="clear-btn">
+    <button type="button" class="btn btn-secondary mt-3" id="clear-btn">
       Clear Text
     </button>
   </form>
 </div>
+
 <script>
-  // Wait forthe doc to be fully loaded
   document.addEventListener("DOMContentLoaded", (event) => {
-    // Get the clear button and text area elements
     const clearButton = document.getElementById("clear-btn");
     const textArea = document.getElementById("text-area");
 
-    // Add click event listener to the clear button
-    clearBtn.addEventListener("click", () => {
-      // Prevent the form from submitting
-      event.preventDefault();
-      // Clear the text area
+    clearButton.addEventListener("click", () => {
       textArea.value = "";
     });
   });
